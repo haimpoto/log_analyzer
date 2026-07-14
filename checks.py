@@ -14,3 +14,11 @@ def extract_external_port(logs: Generator[list[str]]) -> Generator[list[str]]:
 def extract_large_port(logs: Generator[list[str]]) -> Generator[list[str]]:
     external_large_list = (lst for lst in logs if int(lst[5]) >= 5000)
     return external_large_list
+
+
+def append_tag(logs: Generator[list[str]]) -> Generator[list[str]]:
+    for lst in logs:
+        if lst[5] >= 5000:
+            yield lst + ["LARGE"]
+        else:
+            yield lst + ["NORMAL"]
