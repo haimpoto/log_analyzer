@@ -11,3 +11,4 @@ def is_external_port(lst: list[str]) -> bool:
 
 def is_large_port(lst: list[str]) -> bool:
     return int(lst[5]) >= MAX_NORMAL_SIZE
+
