@@ -38,12 +38,9 @@ def analyze_ip_activity(logs: Generator[list[str]]) -> dict[str, list[str]]:
     return dictionary
 
 
-print(analyze_ip_activity(reader.get_lists(reader.the_path)))
-results = analyze_ip_activity(reader.get_lists(reader.the_path))
-
-# כתיבה לקובץ במקום הדפסה לטרמינל
-with open("output.txt", "w") as f:
-    for ip, tags in results.items():
-        f.write(f"{ip}: {tags}\n")
-
-print("Finished! Check output.txt for the full results.")
+def map_external_ip(dictionary: dict[str, list[str]]) -> dict[str, list[str]]:
+    new_dictionary = {}
+    for key, val in dictionary.items():
+        if len(val) >= 2 and key not in new_dictionary:
+            new_dictionary[key] = val
+    return new_dictionary
