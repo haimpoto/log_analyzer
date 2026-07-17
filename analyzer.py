@@ -2,6 +2,26 @@ from typing import Generator
 from checks import *
 
 
+counter_logs_checks = 0
+counter_suspicious_logs = 0
+suspicion_counts = {
+    "EXTERNAL_IP": 0,
+    "SENSITIVE_PORT": 0,
+    "LARGE_PACKET": 0,
+    "NIGHT_ACTIVITY": 0
+}
+
+
+def update_stats(suspicion_list: list[str]):
+    global counter_logs_checks, counter_suspicious_logs, suspicion_counts
+    counter_logs_checks += 1
+    if suspicion_list:
+        counter_suspicious_logs += 1
+        for suspicion in suspicion_list:
+            if suspicion in suspicion_counts:
+                suspicion_counts[suspicion] += 1
+
+
 def filter_external_IP(logs: Generator[list[str]]) -> Generator[str]:
     external_IP_list = (log[1] for log in logs if is_external_IP(log))
     return external_IP_list
@@ -89,9 +109,3 @@ def get_log_suspicions(log: list[str], checks_dict: dict) -> list[str]:
 
 def filter_suspicious_logs_with_map(logs: Generator[list[str]], checks_dict: dict) -> filter:
     return filter(lambda item: len(item[1]) > 0, map(lambda log: (log, get_log_suspicions(log, checks_dict)), logs))
-
-
-
-
-
-
