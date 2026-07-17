@@ -78,16 +78,17 @@ def filter_night_activity_with_lambda(logs: Generator[list[str]]) -> filter:
 
 def get_suspicion_checks_dict() -> dict:
     return {
-        "EXTERNAL_IP": lambda row: not row[1].startswith(INTERNAL_IP),
-        "SENSITIVE_PORT": lambda row: row[3].strip() in EXTERNAL_PORTS,
-        "LARGE_PACKET": lambda row: int(row[5]) >= MAX_NORMAL_SIZE,
-        "NIGHT_ACTIVITY": lambda row: int(EXIT_TIME[:2]) <= int(row[0][11:13]) < int(ENTER_TIME[:2])
+        "EXTERNAL_IP": lambda log: not log[1].startswith(INTERNAL_IP),
+        "SENSITIVE_PORT": lambda log: log[3].strip() in EXTERNAL_PORTS,
+        "LARGE_PACKET": lambda log: int(log[5]) >= MAX_NORMAL_SIZE,
+        "NIGHT_ACTIVITY": lambda log: int(EXIT_TIME[:2]) <= int(log[0][11:13]) < int(ENTER_TIME[:2])
     }
 
+def get_log_suspicions(log: list[str], checks_dict: dict) -> list[str]:
+    return list(filter(lambda suspicion: checks_dict[suspicion](log), checks_dict.keys()))
 
-
-
-
+def filter_suspicious_logs_with_map(logs: Generator[list[str]], checks_dict: dict) -> filter:
+    return filter(lambda item: len(item[1]) > 0, map(lambda log: (log, get_log_suspicions(log, checks_dict)), logs))
 
 
 
