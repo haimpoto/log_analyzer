@@ -1,5 +1,6 @@
-from typing import Generator
+from pathlib import Path
 from checks import *
+import reader
 
 
 counter_logs_checks = 0
@@ -13,13 +14,25 @@ suspicion_counts = {
 
 
 def update_stats(suspicion_list: list[str]):
-    global counter_logs_checks, counter_suspicious_logs, suspicion_counts
-    counter_logs_checks += 1
+    global counter_suspicious_logs, suspicion_counts
     if suspicion_list:
         counter_suspicious_logs += 1
         for suspicion in suspicion_list:
             if suspicion in suspicion_counts:
                 suspicion_counts[suspicion] += 1
+
+
+def the_analyze(filename: Path) -> dict[str, list[str]]:
+    global counter_logs_checks
+    dictionary = {}
+    logs = reader.get_lists(filename)
+    for log in logs:
+        counter_logs_checks += 1
+        suspicions = get_log_suspicions(log, get_suspicion_checks_dict())
+        update_stats(suspicions)
+        if suspicions:
+            dictionary[log[1]] = suspicions
+    return dictionary
 
 
 def filter_external_IP(logs: Generator[list[str]]) -> Generator[str]:
@@ -105,7 +118,7 @@ def get_suspicion_checks_dict() -> dict:
     }
 
 def get_log_suspicions(log: list[str], checks_dict: dict) -> list[str]:
-    return list(filter(lambda suspicion: checks_dict[suspicion](log), checks_dict.keys()))
+    return list(filter(lambda suspicion: checks_dict[suspicion](log), checks_dict))
 
 def filter_suspicious_logs_with_map(logs: Generator[list[str]], checks_dict: dict) -> filter:
     return filter(lambda item: len(item[1]) > 0, map(lambda log: (log, get_log_suspicions(log, checks_dict)), logs))
