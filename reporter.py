@@ -1,3 +1,5 @@
+from typing import Generator
+
 def get_source_ip(logs: Generator[list[str]]) -> dict[str, int]:
     dictionary = {}
     for log in logs:
