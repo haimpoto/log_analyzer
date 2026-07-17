@@ -2,7 +2,6 @@ from pathlib import Path
 import csv
 from typing import Generator
 
-the_path = Path("network_traffic.log")
 
 
 def get_lists(path: Path) -> Generator[list[str]]:
